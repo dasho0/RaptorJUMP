@@ -7,6 +7,7 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
     [SerializeField] private float baseAcceleration = 0.2f;
     [SerializeField] private float speedCap = 5f;
     [SerializeField] private GravityProvider gravityProvider;
+    [SerializeField] private CharacterController characterController;
     [SerializeField, Range(0.25f, 2f)]
     private float shapeExponent = 1.0f;
     [SerializeField]
@@ -42,7 +43,7 @@ private float AccelerateFromCurrent(float s) {
         }
 
         var xrOrigin = mediator.xrOrigin;
-        if (xrOrigin == null)
+        if(xrOrigin == null)
             return Vector3.zero;
 
         // Assumes that the input axes are in the range [-1, 1].
@@ -87,6 +88,28 @@ private float AccelerateFromCurrent(float s) {
         var rigSpaceDir = new Vector3(inputMove.x, 0f, inputMove.z).normalized;
         var translationInRigSpace = forwardRotation * rigSpaceDir * speedFactor;
         var translationInWorldSpace = originTransform.TransformDirection(translationInRigSpace);
+
+        if(translationInWorldSpace.sqrMagnitude > 0f) {
+            var rayOrigin = characterController.transform.position;
+            var rayDir = translationInWorldSpace.normalized;
+            var distance = translationInWorldSpace.magnitude;
+
+            if(characterController.Raycast(new Ray(rayOrigin, rayDir), out var hitInfo, distance)) {
+                var wallNormal = hitInfo.normal.normalized;
+
+                var desiredMove = translationInWorldSpace;
+                var componentIntoWall = Vector3.Dot(desiredMove, wallNormal) * wallNormal;
+                var componentAlongWall = desiredMove - componentIntoWall;
+
+                if(componentAlongWall.sqrMagnitude > distance * distance)
+                    componentAlongWall = componentAlongWall.normalized * distance;
+
+                // currentSpeed *= componentAlongWall.magnitude / componentIntoWall.magnitude;
+                currentSpeed = 0;
+
+                translationInWorldSpace = componentAlongWall;
+            }
+        }
 
         return translationInWorldSpace;
     }
