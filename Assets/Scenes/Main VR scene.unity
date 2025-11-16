@@ -552,8 +552,8 @@ MonoBehaviour:
     m_ObjectReferenceObject: {fileID: 0}
     m_ManualValue: {x: 0, y: 0}
   m_UseGravity: 1
-  baseAcceleration: 0.8
-  speedCap: 25
+  baseAcceleration: 0.222
+  speedCap: 6.9
   gravityProvider: {fileID: 1594239347}
   shapeExponent: 1
   normalizeAtTime: 4
@@ -2137,7 +2137,7 @@ MonoBehaviour:
   m_TransformationPriority: 0
   m_TurnSpeed: 60
   m_EnableTurnLeftRight: 1
-  m_EnableTurnAround: 1
+  m_EnableTurnAround: 0
   m_LeftHandTurnInput:
     m_InputSourceMode: 0
     m_InputAction:

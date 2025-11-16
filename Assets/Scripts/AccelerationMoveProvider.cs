@@ -14,27 +14,25 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
 
     private float currentSpeed = 0f;
 
-private float AccelerateFromCurrent(float s)
-{
-    float k = baseAcceleration;
-    float cap = speedCap;
-    float alpha = shapeExponent;
-    float T = normalizeAtTime;
+private float AccelerateFromCurrent(float s) {
+    var k = baseAcceleration;
+    var cap = speedCap;
+    var alpha = shapeExponent;
+    var T = normalizeAtTime;
 
-    float denom = 1f - Mathf.Exp(-k * Mathf.Pow(T, alpha));
+    var denom = 1f - Mathf.Exp(-k * Mathf.Pow(T, alpha));
 
-    float A = Mathf.Clamp01((s / cap) * denom);
-    float tPowA = -Mathf.Log(1f - A) / k;     // = t^α
-    float t = Mathf.Pow(tPowA, 1f / alpha);
+    var A = Mathf.Clamp01((s / cap) * denom);
+    var tPowA = -Mathf.Log(1f - A) / k;
+    var t = Mathf.Pow(tPowA, 1f / alpha);
 
-    float tNext = t + Time.deltaTime;
-    float sNext = cap * (1f - Mathf.Exp(-k * Mathf.Pow(tNext, alpha))) / denom;
+    var tNext = t + Time.deltaTime;
+    var sNext = cap * (1f - Mathf.Exp(-k * Mathf.Pow(tNext, alpha))) / denom;
 
     return Mathf.Min(sNext, cap);
 }
 
-    protected override Vector3 ComputeDesiredMove(Vector2 input)
-    {
+    protected override Vector3 ComputeDesiredMove(Vector2 input) {
         var shouldAccelerate = gravityProvider.isGrounded;
         // TODO: this should be handled properly probably
 
@@ -58,7 +56,7 @@ private float AccelerateFromCurrent(float s)
         var forwardSourceTransform = forwardSource == null ? xrOrigin.Camera.transform : forwardSource;
         var inputForwardInWorldSpace = forwardSourceTransform.forward;
 
-        if (shouldAccelerate) {
+        if(shouldAccelerate) {
             currentSpeed = AccelerateFromCurrent(currentSpeed);
         }
 
@@ -66,7 +64,7 @@ private float AccelerateFromCurrent(float s)
         var speedFactor = currentSpeed * deltaTime * originTransform.localScale.x; // Adjust speed with user scale
 
         // If flying, just compute move directly from input and forward source
-        if (enableFly) {
+        if(enableFly) {
             var inputRightInWorldSpace = forwardSourceTransform.right;
             var combinedMove = inputMove.x * inputRightInWorldSpace + inputMove.z * inputForwardInWorldSpace;
             return combinedMove * speedFactor;
@@ -74,7 +72,7 @@ private float AccelerateFromCurrent(float s)
 
         var originUp = originTransform.up;
 
-        if (Mathf.Approximately(Mathf.Abs(Vector3.Dot(inputForwardInWorldSpace, originUp)), 1f)) {
+        if(Mathf.Approximately(Mathf.Abs(Vector3.Dot(inputForwardInWorldSpace, originUp)), 1f)) {
             // When the input forward direction is parallel with the rig normal,
             // it will probably feel better for the player to move along the same direction
             // as if they tilted forward or up some rather than moving in the rig forward direction.
