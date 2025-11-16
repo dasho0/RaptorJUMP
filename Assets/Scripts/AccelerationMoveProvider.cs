@@ -1,3 +1,5 @@
+using System;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Gravity;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement;
@@ -13,25 +15,45 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
     [SerializeField]
     private float normalizeAtTime = 4f;
 
+    private bool hasTouchedWall = false;
+
     private float currentSpeed = 0f;
 
-private float AccelerateFromCurrent(float s) {
-    var k = baseAcceleration;
-    var cap = speedCap;
-    var alpha = shapeExponent;
-    var T = normalizeAtTime;
+    private float AccelerateFromCurrent(float sCurrent)
+    {
+        var k = baseAcceleration;
+        var cap = speedCap;
+        var alpha = shapeExponent;
+        var T = normalizeAtTime;
+        var dt = Time.deltaTime;
 
-    var denom = 1f - Mathf.Exp(-k * Mathf.Pow(T, alpha));
+        var denom = 1f - Mathf.Exp(-k * Mathf.Pow(T, alpha));
 
-    var A = Mathf.Clamp01((s / cap) * denom);
-    var tPowA = -Mathf.Log(1f - A) / k;
-    var t = Mathf.Pow(tPowA, 1f / alpha);
+        // Guard against invalid state
+        if(cap <= 0f || denom <= 0f || sCurrent <= 0f) {
+            return Mathf.Min(sCurrent + k * dt * cap, cap);
+        }
 
-    var tNext = t + Time.deltaTime;
-    var sNext = cap * (1f - Mathf.Exp(-k * Mathf.Pow(tNext, alpha))) / denom;
+        // s(t) = cap * (1 - exp(-k * t^alpha)) / denom
+        var A = Mathf.Clamp01((sCurrent / cap) * denom);
+        if (A >= 1f)
+            return cap;
 
-    return Mathf.Min(sNext, cap);
-}
+        var tPowA = -Mathf.Log(1f - A) / k;
+        var t = Mathf.Pow(tPowA, 1f / alpha);
+
+        // ds/dt = cap/denom * k * alpha * t^(alpha-1) * exp(-k * t^alpha)
+        var tAlpha = Mathf.Pow(t, alpha);
+        var expTerm = Mathf.Exp(-k * tAlpha);
+        var dsdt = cap / denom * k * alpha * Mathf.Pow(t, alpha - 1f) * expTerm;
+
+        // if (!float.IsFinite(dsdt) || dsdt <= 0f) {
+        //     dsdt = k * cap;
+        // }
+
+        var sNext = sCurrent + dsdt * dt;
+        return Mathf.Min(sNext, cap);
+    }
 
     protected override Vector3 ComputeDesiredMove(Vector2 input) {
         var shouldAccelerate = gravityProvider.isGrounded;
@@ -92,22 +114,39 @@ private float AccelerateFromCurrent(float s) {
         if(translationInWorldSpace.sqrMagnitude > 0f) {
             var rayOrigin = characterController.transform.position;
             var rayDir = translationInWorldSpace.normalized;
-            var distance = translationInWorldSpace.magnitude;
+            var distance = translationInWorldSpace.magnitude + characterController.radius;
 
-            if(characterController.Raycast(new Ray(rayOrigin, rayDir), out var hitInfo, distance)) {
+            Debug.DrawRay(rayOrigin, rayDir * (distance + 0.1f), Color.red, 1f);
+
+            if(Physics.Raycast(new Ray(rayOrigin, rayDir), out var hitInfo, distance)) {
+                Debug.Log($"Coliding with wall with speed: {currentSpeed}");
+                Debug.DrawLine(rayOrigin, hitInfo.point, Color.green, 1f);
+                if(!hasTouchedWall) {
+                    Debug.Log($"Entering wallhug with speed: {currentSpeed}");
+                }
+
+                hasTouchedWall = true;
+
                 var wallNormal = hitInfo.normal.normalized;
 
                 var desiredMove = translationInWorldSpace;
                 var componentIntoWall = Vector3.Dot(desiredMove, wallNormal) * wallNormal;
                 var componentAlongWall = desiredMove - componentIntoWall;
 
-                if(componentAlongWall.sqrMagnitude > distance * distance)
+                if(componentAlongWall.sqrMagnitude > distance * distance) {
                     componentAlongWall = componentAlongWall.normalized * distance;
+                }
 
-                // currentSpeed *= componentAlongWall.magnitude / componentIntoWall.magnitude;
-                currentSpeed = 0;
+                currentSpeed *= componentAlongWall.magnitude / componentIntoWall.magnitude;
+                // currentSpeed = 0;
 
-                translationInWorldSpace = componentAlongWall;
+                // translationInWorldSpace = componentAlongWall;
+            } else {
+                if(hasTouchedWall) {
+                    Debug.Log($"Stopped touching wall, after hugging it, with speed: {currentSpeed}");
+                }
+
+                hasTouchedWall = false;
             }
         }
 
