@@ -15,8 +15,6 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
     [SerializeField]
     private float normalizeAtTime = 4f;
 
-    private bool hasTouchedWall = false;
-
     private float currentSpeed = 0f;
 
     #if UNITY_EDITOR
@@ -146,46 +144,24 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
         }
 
         var translationInWorldSpace = translationInWorldSpaceNormalized * speedFactor;
-
-        if(translationInWorldSpace.sqrMagnitude > 0f) {
-            var rayOrigin = characterController.transform.position;
-            var rayDir = translationInWorldSpace.normalized;
-            var distance = translationInWorldSpace.magnitude + characterController.radius;
-
-            Debug.DrawRay(rayOrigin, rayDir * (distance + 0.1f), Color.red, 1f);
-
-            if(Physics.Raycast(new Ray(rayOrigin, rayDir), out var hitInfo, distance)) {
-                Debug.Log($"Coliding with wall with speed: {currentSpeed}");
-                Debug.DrawLine(rayOrigin, hitInfo.point, Color.green, 1f);
-                if(!hasTouchedWall) {
-                    Debug.Log($"Entering wallhug with speed: {currentSpeed}");
-                }
-
-                hasTouchedWall = true;
-
-                var wallNormal = hitInfo.normal.normalized;
-
-                var desiredMove = translationInWorldSpace;
-                var componentIntoWall = Vector3.Dot(desiredMove, wallNormal) * wallNormal;
-                var componentAlongWall = desiredMove - componentIntoWall;
-
-                if(componentAlongWall.sqrMagnitude > distance * distance) {
-                    componentAlongWall = componentAlongWall.normalized * distance;
-                }
-
-                currentSpeed *= componentAlongWall.magnitude / componentIntoWall.magnitude;
-                // currentSpeed = 0;
-
-                // translationInWorldSpace = componentAlongWall;
-            } else {
-                if(hasTouchedWall) {
-                    Debug.Log($"Stopped touching wall, after hugging it, with speed: {currentSpeed}");
-                }
-
-                hasTouchedWall = false;
-            }
-        }
-
         return translationInWorldSpace;
+    }
+
+    public void ProcessWallCollision(ControllerColliderHit hit) {
+        Debug.Log($"hit wall: {hit}");
+        if (Vector3.Dot(hit.normal, Vector3.up) > 0.7f || Vector3.Dot(hit.normal, Vector3.down) > 0.7f)
+            return;
+
+        var wallNormal = hit.normal.normalized;
+        var desiredMove = hit.controller.velocity * Time.deltaTime;
+
+        var componentIntoWall = Vector3.Dot(desiredMove, wallNormal) * wallNormal;
+        var componentAlongWall = desiredMove - componentIntoWall;
+
+        if (desiredMove.magnitude > 0f)
+        {
+            float speedReduction = componentAlongWall.magnitude / desiredMove.magnitude;
+            currentSpeed *= speedReduction;
+        }
     }
 }
