@@ -6,8 +6,8 @@ using UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement;
 
 public class AccelerationMoveProvider : ContinuousMoveProvider
 {
-    [SerializeField] private float baseAcceleration = 0.2f;
-    [SerializeField] private float speedCap = 5f;
+    [SerializeField] private float baseAcceleration = 0.222f;
+    [SerializeField] private float speedCap = 6.9f;
     [SerializeField] private GravityProvider gravityProvider;
     [SerializeField] private CharacterController characterController;
     [SerializeField, Range(0.25f, 2f)]
@@ -18,6 +18,14 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
     private bool hasTouchedWall = false;
 
     private float currentSpeed = 0f;
+
+    #if UNITY_EDITOR
+    private float debug_angleBetweenMovementAndForward = 0f;
+
+    public void OnGUI() {
+            GUILayout.Label($"Angle between forward and movement: {debug_angleBetweenMovementAndForward}");
+    }
+#endif
 
     private float AccelerateFromCurrent(float sCurrent)
     {
@@ -55,6 +63,32 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
         return Mathf.Min(sNext, cap);
     }
 
+    private float GetDynamicSpeedCap(Vector3 movementForward, Vector3 movementInWorldSpace)
+    {
+        if(movementInWorldSpace == Vector3.zero)
+            return speedCap;
+
+        Vector3 forwardDir2D = new Vector3(movementForward.x, 0, movementForward.z).normalized;
+        Vector3 movement2D = new Vector3(movementInWorldSpace.x, 0f, movementInWorldSpace.z).normalized;
+
+        Debug.DrawRay(characterController.transform.position, forwardDir2D, Color.yellow);
+        Debug.DrawRay(characterController.transform.position, movement2D, Color.blue);
+
+        float angle = Vector3.Angle(forwardDir2D, movement2D);
+        float absAngle = Mathf.Abs(angle);
+
+        #if UNITY_EDITOR
+            debug_angleBetweenMovementAndForward = angle;
+        #endif
+
+        if(absAngle <= 90f) {
+            float t = absAngle / 90f;
+            return Mathf.Lerp(speedCap, speedCap * 0.5f, t);
+        }
+
+        return speedCap * 0.5f;
+    }
+
     protected override Vector3 ComputeDesiredMove(Vector2 input) {
         var shouldAccelerate = gravityProvider.isGrounded;
         // TODO: this should be handled properly probably
@@ -78,12 +112,21 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
         // Determine frame of reference for what the input direction is relative to
         var forwardSourceTransform = forwardSource == null ? xrOrigin.Camera.transform : forwardSource;
         var inputForwardInWorldSpace = forwardSourceTransform.forward;
+        var originTransform = xrOrigin.Origin.transform;
+        var originUp = originTransform.up;
+        var inputForwardProjectedInWorldSpace = Vector3.ProjectOnPlane(inputForwardInWorldSpace, originUp);
+
+        var forwardRotation = Quaternion.FromToRotation(originTransform.forward, inputForwardProjectedInWorldSpace);
+        var rigSpaceDir = new Vector3(inputMove.x, 0f, inputMove.z).normalized;
+        var translationInRigSpaceNormalized = forwardRotation * rigSpaceDir;
+        var translationInWorldSpaceNormalized  = originTransform.TransformDirection(translationInRigSpaceNormalized);
+
+        var cap = GetDynamicSpeedCap(inputForwardProjectedInWorldSpace, translationInWorldSpaceNormalized);
 
         if(shouldAccelerate) {
-            currentSpeed = AccelerateFromCurrent(currentSpeed);
+            currentSpeed = Math.Min(cap, AccelerateFromCurrent(currentSpeed));
         }
 
-        var originTransform = xrOrigin.Origin.transform;
         var speedFactor = currentSpeed * deltaTime * originTransform.localScale.x; // Adjust speed with user scale
 
         // If flying, just compute move directly from input and forward source
@@ -92,8 +135,6 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
             var combinedMove = inputMove.x * inputRightInWorldSpace + inputMove.z * inputForwardInWorldSpace;
             return combinedMove * speedFactor;
         }
-
-        var originUp = originTransform.up;
 
         if(Mathf.Approximately(Mathf.Abs(Vector3.Dot(inputForwardInWorldSpace, originUp)), 1f)) {
             // When the input forward direction is parallel with the rig normal,
@@ -104,12 +145,7 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
             inputForwardInWorldSpace = -forwardSourceTransform.up;
         }
 
-        var inputForwardProjectedInWorldSpace = Vector3.ProjectOnPlane(inputForwardInWorldSpace, originUp);
-        var forwardRotation = Quaternion.FromToRotation(originTransform.forward, inputForwardProjectedInWorldSpace);
-
-        var rigSpaceDir = new Vector3(inputMove.x, 0f, inputMove.z).normalized;
-        var translationInRigSpace = forwardRotation * rigSpaceDir * speedFactor;
-        var translationInWorldSpace = originTransform.TransformDirection(translationInRigSpace);
+        var translationInWorldSpace = translationInWorldSpaceNormalized * speedFactor;
 
         if(translationInWorldSpace.sqrMagnitude > 0f) {
             var rayOrigin = characterController.transform.position;
