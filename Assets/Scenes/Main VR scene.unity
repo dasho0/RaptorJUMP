@@ -392,6 +392,7 @@ GameObject:
   - component: {fileID: 287992990}
   - component: {fileID: 287992989}
   - component: {fileID: 287992992}
+  - component: {fileID: 287992993}
   m_Layer: 2
   m_Name: VR Player
   m_TagString: Untagged
