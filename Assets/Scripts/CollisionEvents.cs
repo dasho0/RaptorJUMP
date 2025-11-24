@@ -13,6 +13,9 @@ public class PlayerCollisionEvents : MonoBehaviour
 
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
+        if(!cc.isGrounded) {
+            Debug.Log("hit wall while in mid air");
+        }
         accelerationMoveProvider.ProcessWallCollision(hit);
     }
 }
