@@ -69,8 +69,8 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
         Vector3 forwardDir2D = new Vector3(movementForward.x, 0, movementForward.z).normalized;
         Vector3 movement2D = new Vector3(movementInWorldSpace.x, 0f, movementInWorldSpace.z).normalized;
 
-        Debug.DrawRay(characterController.transform.position, forwardDir2D, Color.yellow);
-        Debug.DrawRay(characterController.transform.position, movement2D, Color.blue);
+        // Debug.DrawRay(characterController.transform.position, forwardDir2D, Color.yellow);
+        // Debug.DrawRay(characterController.transform.position, movement2D, Color.blue);
 
         float angle = Vector3.Angle(forwardDir2D, movement2D);
         float absAngle = Mathf.Abs(angle);

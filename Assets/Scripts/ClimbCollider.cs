@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
+using Color=UnityEngine.Color;
 
 public enum Hand {
 	LEFT,
@@ -15,8 +18,10 @@ public class ClimbCollider : MonoBehaviour {
 	[SerializeField] private InputAction climbButton;
 	[SerializeField] private Hand hand;
 	[SerializeField] private float colliderRadius;
-	[SerializeField] private int grabRaycasts = 16;
+	[SerializeField] private int grabRaycasts;
 	[SerializeField] private LayerMask ignoreLayers;
+	[SerializeField] private Renderer handRenderer;
+	[SerializeField] private int grabAngleThreshold = 80;
 
 	private bool _gripping = false;
 	private List<Collider> _currentlyOverlapping = new List<Collider>();
@@ -63,11 +68,49 @@ public class ClimbCollider : MonoBehaviour {
 
 	private bool CheckIfCanGrip() {
 		var pointsAroundCollider = FibonacciSphere(grabRaycasts)
-			.Select(p => p * colliderRadius + handCollider.bounds.center );
+			.Select(p => p * colliderRadius + handCollider.bounds.center)
+			.ToList();
 		
 #if UNITY_EDITOR
-		dbg_pointsAroundCollider = pointsAroundCollider.ToList();
+		dbg_pointsAroundCollider = pointsAroundCollider;
 #endif
+
+		var distinctNormals = new List<Vector3>();
+		foreach(var point in pointsAroundCollider) {
+			var closestPointsOnColliders = _currentlyOverlapping
+				.Select(c => c.ClosestPoint(point))
+				.Where(p => Vector3.Distance(handCollider.bounds.center, p) <= colliderRadius)
+				.Distinct()
+				.ToList();
+
+			var normals = new List<Vector3>(closestPointsOnColliders.Count());
+			foreach (var closest in closestPointsOnColliders) {
+				var direction = (closest - point).normalized;
+				var distance = Vector3.Distance(point, closest);
+				var ray = new Ray(point, direction);
+				Debug.DrawRay(point, direction * distance, Color.red, 0.016f);
+				
+				if(Physics.Raycast(ray, out var hitInfo, distance, ~ignoreLayers)) {
+					normals.Add(hitInfo.normal);	
+					Debug.Assert(hitInfo.normal.IsAxisAligned(), $"Non aligned hit normal for point {point} with closest {closest}, going in direction {direction}, hit normal {hitInfo.normal}");
+					Debug.DrawRay(hitInfo.point, hitInfo.normal * 0.1f, Color.cyan, 0.016f);
+				}
+			}
+
+			distinctNormals.AddRange(normals.Distinct().ToList());
+		}
+		
+		// foreach(var normal in distinctNormals) {
+		// 	Debug.DrawRay(handCollider.bounds.center, normal * 0.1f, Color.yellow, 0.016f);	
+		// }
+		
+		foreach(var n1 in distinctNormals) {
+			foreach(var n2 in distinctNormals) {
+				if(Vector3.Dot(n1, n2) <= Mathf.Abs(Mathf.Cos(grabAngleThreshold * 0.017453292519943f))) {
+					return true;
+				}		
+			}	
+		}
 
 		return false;
 	}
@@ -102,6 +145,7 @@ public class ClimbCollider : MonoBehaviour {
 		if(_currentlyOverlapping.Count == 0 || !isPressed) {
 			_currentlyOverlapping.Clear();
 			if(_gripping) {
+				handRenderer.material.color = Color.blue;	
 				onClimbEnded?.Invoke(hand);
 				_gripping = false;
 			}
@@ -111,8 +155,11 @@ public class ClimbCollider : MonoBehaviour {
 		var canGrip = CheckIfCanGrip();
 		if(canGrip && !_gripping) {
 			onClimbStarted?.Invoke(hand);
+			handRenderer.material.color = Color.darkRed;	
+			
 			_gripping = true;
 		} else if(!canGrip && _gripping) {
+			handRenderer.material.color = Color.blue;	
 			onClimbEnded?.Invoke(hand);
 			_gripping = false;
 		}
