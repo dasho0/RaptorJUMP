@@ -20,7 +20,6 @@ public class ClimbCollider : MonoBehaviour {
 	[SerializeField] private float colliderRadius;
 	[SerializeField] private int grabRaycasts;
 	[SerializeField] private LayerMask ignoreLayers;
-	[SerializeField] private Renderer handRenderer;
 	[SerializeField] private int grabAngleThreshold = 80;
 
 	private bool _gripping = false;
@@ -92,7 +91,6 @@ public class ClimbCollider : MonoBehaviour {
 				
 				if(Physics.Raycast(ray, out var hitInfo, distance, ~ignoreLayers)) {
 					normals.Add(hitInfo.normal);	
-					Debug.Assert(hitInfo.normal.IsAxisAligned(), $"Non aligned hit normal for point {point} with closest {closest}, going in direction {direction}, hit normal {hitInfo.normal}");
 					Debug.DrawRay(hitInfo.point, hitInfo.normal * 0.1f, Color.cyan, 0.016f);
 				}
 			}
@@ -145,7 +143,6 @@ public class ClimbCollider : MonoBehaviour {
 		if(_currentlyOverlapping.Count == 0 || !isPressed) {
 			_currentlyOverlapping.Clear();
 			if(_gripping) {
-				handRenderer.material.color = Color.blue;	
 				onClimbEnded?.Invoke(hand);
 				_gripping = false;
 			}
@@ -155,11 +152,9 @@ public class ClimbCollider : MonoBehaviour {
 		var canGrip = CheckIfCanGrip();
 		if(canGrip && !_gripping) {
 			onClimbStarted?.Invoke(hand);
-			handRenderer.material.color = Color.darkRed;	
 			
 			_gripping = true;
 		} else if(!canGrip && _gripping) {
-			handRenderer.material.color = Color.blue;	
 			onClimbEnded?.Invoke(hand);
 			_gripping = false;
 		}
