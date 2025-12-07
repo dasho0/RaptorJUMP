@@ -264,11 +264,11 @@ MonoBehaviour:
     m_Flags: 0
   hand: 0
   colliderRadius: 0.08
-  grabRaycasts: 16
+  grabRaycasts: 32
   ignoreLayers:
     serializedVersion: 2
     m_Bits: 72
-  grabAngleThreshold: 95
+  grabAngleThreshold: 85
 --- !u!135 &89653281
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2969,6 +2969,7 @@ MonoBehaviour:
   rightClimbCollider: {fileID: 89653280}
   leftHandRenderer: {fileID: 1510510784}
   rightHandRenderer: {fileID: 134887168}
+  handLength: 1
 --- !u!1 &1947499184
 GameObject:
   m_ObjectHideFlags: 0

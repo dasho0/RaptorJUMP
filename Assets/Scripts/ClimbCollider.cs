@@ -23,8 +23,7 @@ public class ClimbCollider : MonoBehaviour {
 	[SerializeField] private int grabAngleThreshold = 80;
 
 	private bool _gripping = false;
-	private List<Collider> _currentlyOverlapping = new List<Collider>();
-
+	private readonly List<Collider> _currentlyOverlapping = new List<Collider>();
 	public event Action<Hand> onClimbStarted;
 	public event Action<Hand> onClimbEnded;
 	
