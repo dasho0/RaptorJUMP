@@ -1896,6 +1896,7 @@ Transform:
   m_Children:
   - {fileID: 1611536965}
   - {fileID: 720371273}
+  - {fileID: 2131883242}
   m_Father: {fileID: 1600648693}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1547492956
@@ -2236,7 +2237,6 @@ Transform:
   - {fileID: 1639221306}
   - {fileID: 590896719}
   - {fileID: 1547492955}
-  - {fileID: 2131883242}
   m_Father: {fileID: 287992991}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1611536964
@@ -2970,6 +2970,9 @@ MonoBehaviour:
   rightClimbCollider: {fileID: 2131883244}
   leftHandRenderer: {fileID: 1510510784}
   rightHandRenderer: {fileID: 134887168}
+  leftHandTransform: {fileID: 590896719}
+  rightHandTransform: {fileID: 1547492955}
+  playerCharacterController: {fileID: 287992992}
   handLength: 1
 --- !u!1 &1947499184
 GameObject:
@@ -3473,7 +3476,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1600648693}
+  m_Father: {fileID: 1547492955}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!135 &2131883243
 SphereCollider:
