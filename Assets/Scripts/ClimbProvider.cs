@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
+using UnityEngine.XR.Interaction.Toolkit.Locomotion.Gravity;
 
 public class ClimbProvider : MonoBehaviour {
 	// Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -15,6 +16,8 @@ public class ClimbProvider : MonoBehaviour {
 	[SerializeField] private Transform rightHandTransform;
 	
 	[SerializeField] private CharacterController playerCharacterController;
+	[SerializeField] private AccelerationMoveProvider accelerationMoveProvider;
+	[SerializeField] private GravityProvider gravityProvider;
 	
 	[SerializeField] private float handLength = 1f;
 
@@ -62,16 +65,16 @@ public class ClimbProvider : MonoBehaviour {
 	}
 
 	private Hands _hands;
-    private Dictionary<Hand, bool> _isClimbing = new Dictionary<Hand, bool> {
+	private Dictionary<Hand, bool> _isClimbing = new Dictionary<Hand, bool> {
 		{ Hand.LEFT, false },
 		{ Hand.RIGHT, false },
 	};
 	void Start() {
 		_hands = new Hands(
-			new HandInfo(leftHandRenderer, leftClimbCollider),
-			new HandInfo(rightHandRenderer, rightClimbCollider),
-			leftHandTransform,
-			rightHandTransform
+		new HandInfo(leftHandRenderer, leftClimbCollider),
+		new HandInfo(rightHandRenderer, rightClimbCollider),
+		leftHandTransform,
+		rightHandTransform
 		);
 	}
 
@@ -94,6 +97,7 @@ public class ClimbProvider : MonoBehaviour {
 	private void HandleClimbStarted(Hand hand) {
 		var handInfo = _hands.Get(hand);
 		handInfo.Renderer.material.color = Color.darkRed;
+		StopPlayer();
 
 		_isClimbing[hand] = true;
 		_hands.StorePosition(hand);
@@ -104,6 +108,12 @@ public class ClimbProvider : MonoBehaviour {
 		handInfo.Renderer.material.color = Color.deepSkyBlue;
 
 		_isClimbing[hand] = false;
+		
+		if(_isClimbing.ContainsValue(true)) {
+			return;
+		}
+		
+		ReleasePlayer();
 	}
 
 	// Update is called once per frame
@@ -114,5 +124,16 @@ public class ClimbProvider : MonoBehaviour {
 				// _hands.GetTransform(hand).position = _hands.GetStoredPosition(hand);
 			}
 		}	
+	}
+
+	private void StopPlayer() {
+		gravityProvider.useGravity = false;
+		accelerationMoveProvider.LockMovement();			
+		playerCharacterController.Move(Vector3.zero);
+	}
+	
+	private void ReleasePlayer() {
+		accelerationMoveProvider.UnlockMovement();
+		gravityProvider.useGravity = true;
 	}
 }

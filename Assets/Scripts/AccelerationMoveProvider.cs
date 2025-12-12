@@ -1,8 +1,10 @@
 using System;
+using NUnit.Framework;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Gravity;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Movement;
+using Assert=UnityEngine.Assertions.Assert;
 
 public class AccelerationMoveProvider : ContinuousMoveProvider
 {
@@ -10,12 +12,13 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
     [SerializeField] private float speedCap = 6.9f;
     [SerializeField] private GravityProvider gravityProvider;
     [SerializeField] private CharacterController characterController;
-    [SerializeField, Range(0.25f, 2f)]
+    [SerializeField, UnityEngine.Range(0.25f, 2f)]
     private float shapeExponent = 1.0f;
     [SerializeField]
     private float normalizeAtTime = 4f;
 
-    private float currentSpeed = 0f;
+    private float _currentSpeed = 0f;
+    private bool _movementLocked = false;
 
     #if UNITY_EDITOR
     private float debug_angleBetweenMovementAndForward = 0f;
@@ -91,8 +94,12 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
         var shouldAccelerate = gravityProvider.isGrounded;
         // TODO: this should be handled properly probably
 
+        if(_movementLocked) {
+            return Vector3.zero;
+        }
+
         if(input == Vector2.zero) {
-            currentSpeed = 0f;
+            _currentSpeed = 0f;
             return Vector3.zero;
         }
 
@@ -122,10 +129,10 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
         var cap = GetDynamicSpeedCap(inputForwardProjectedInWorldSpace, translationInWorldSpaceNormalized);
 
         if(shouldAccelerate) {
-            currentSpeed = Math.Min(cap, AccelerateFromCurrent(currentSpeed));
+            _currentSpeed = Math.Min(cap, AccelerateFromCurrent(_currentSpeed));
         }
 
-        var speedFactor = currentSpeed * deltaTime * originTransform.localScale.x; // Adjust speed with user scale
+        var speedFactor = _currentSpeed * deltaTime * originTransform.localScale.x; // Adjust speed with user scale
 
         // If flying, just compute move directly from input and forward source
         if(enableFly) {
@@ -147,6 +154,13 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
         return translationInWorldSpace;
     }
 
+    public void LockMovement() {
+        _movementLocked = true;
+    }
+    
+    public void UnlockMovement() {
+        _movementLocked = false;
+    }
     public void ProcessWallCollision(ControllerColliderHit hit) {
         Debug.Log($"hit wall: {hit}");
         if (Vector3.Dot(hit.normal, Vector3.up) > 0.7f || Vector3.Dot(hit.normal, Vector3.down) > 0.7f)
@@ -161,7 +175,7 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
         if (desiredMove.magnitude > 0f)
         {
             float speedReduction = componentAlongWall.magnitude / desiredMove.magnitude;
-            currentSpeed *= speedReduction;
+            _currentSpeed *= speedReduction;
         }
     }
 }

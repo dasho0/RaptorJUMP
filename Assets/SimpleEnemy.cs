@@ -215,7 +215,7 @@ public class SimpleEnemy : MonoBehaviour
             handLastPositions[t] = t.position;
         }
 
-        if (debugPunch) Debug.Log($"[SimpleEnemy] Found {handTransforms.Count} hands");
+        // if (debugPunch) Debug.Log($"[SimpleEnemy] Found {handTransforms.Count} hands");
     }
 
     void UpdateHandPositions()
