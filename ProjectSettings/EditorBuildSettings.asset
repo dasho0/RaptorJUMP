@@ -9,6 +9,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Main VR scene.unity
     guid: c3197a8d110142243a34a935dad16952
   m_configObjects:
+    com.unity.dt.app-ui: {fileID: 11400000, guid: 99f9c9493070a9d4c979a8fec7c5a8d3, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     com.unity.xr.management.loader_settings: {fileID: 11400000, guid: a43cc2e4881f5024994d5a418ea9e616, type: 2}
     com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 8da5d8a579766344b90aa3a47e15abc5, type: 2}
