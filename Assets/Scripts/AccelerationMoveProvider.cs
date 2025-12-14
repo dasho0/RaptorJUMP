@@ -19,6 +19,7 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
 
     private float _currentSpeed = 0f;
     private bool _movementLocked = false;
+    private Vector3 _scheduledMoveWhileLocked = Vector3.zero;
 
     #if UNITY_EDITOR
     private float debug_angleBetweenMovementAndForward = 0f;
@@ -26,7 +27,7 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
     public void OnGUI() {
             GUILayout.Label($"Angle between forward and movement: {debug_angleBetweenMovementAndForward}");
     }
-#endif
+    #endif
 
     private float AccelerateFromCurrent(float sCurrent)
     {
@@ -90,12 +91,24 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
         return speedCap * 0.5f;
     }
 
+    protected new void Update() {
+        if (_movementLocked && _scheduledMoveWhileLocked != Vector3.zero) {
+            base.MoveRig(_scheduledMoveWhileLocked);
+            _scheduledMoveWhileLocked = Vector3.zero;
+            return;
+        }
+
+        base.Update();
+    }
+
     protected override Vector3 ComputeDesiredMove(Vector2 input) {
         var shouldAccelerate = gravityProvider.isGrounded;
         // TODO: this should be handled properly probably
 
-        if(_movementLocked) {
-            return Vector3.zero;
+        if(_movementLocked && _scheduledMoveWhileLocked != Vector3.zero) {
+            var move = _scheduledMoveWhileLocked;
+            _scheduledMoveWhileLocked = Vector3.zero;
+            return move;
         }
 
         if(input == Vector2.zero) {
@@ -177,5 +190,10 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
             float speedReduction = componentAlongWall.magnitude / desiredMove.magnitude;
             _currentSpeed *= speedReduction;
         }
+    }
+
+    public void ScheduleMove(Vector3 movement) {
+        _scheduledMoveWhileLocked = movement;
+        // Debug.Log($"Scheduling movement: {_scheduledMoveWhileLocked}");
     }
 }

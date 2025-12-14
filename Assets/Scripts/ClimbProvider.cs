@@ -21,44 +21,58 @@ public class ClimbProvider : MonoBehaviour {
 	
 	[SerializeField] private float handLength = 1f;
 
-	private record HandInfo(Renderer Renderer, ClimbCollider ClimbCollider);
+	private class HandInfo {
+		public readonly Renderer Renderer;
+		public readonly ClimbCollider ClimbCollider;
+		public Vector3 PreviousPosition;
+		public Vector3 CurrentPosition;
+		public Vector3 StoredPosition;
+
+		public HandInfo(Renderer renderer, ClimbCollider climbCollider, Vector3 position) {
+			Renderer = renderer;
+			ClimbCollider = climbCollider;
+			PreviousPosition = position;
+			CurrentPosition = position;
+			StoredPosition = Vector3.zero;
+		}
+	};
+	
 	private class Hands {
 		private readonly HandInfo _left;
 		private readonly HandInfo _right;
+		private readonly Transform _leftHandTransform;
+		private readonly Transform _rightHandTransform;
 
-		private Transform _leftTransform;
-		private Transform _rightTransform;
-		
-		private Vector3 _storedLeftPosition;
-		private Vector3 _storedRightPosition;
-
-		public Hands(HandInfo left, HandInfo right, Transform leftTransform, Transform rightTransform) {
+		public Hands(HandInfo left, HandInfo right, Transform leftHandTransform, Transform rightHandTransform) {
 			_left = left;
 			_right = right;
 			
-			_leftTransform = leftTransform;
-			_rightTransform = rightTransform;
-
-			_storedLeftPosition = _leftTransform.position;
-			_storedRightPosition = _rightTransform.position;
+			_leftHandTransform = leftHandTransform;
+			_rightHandTransform = rightHandTransform;
 		}
 		public HandInfo Get(Hand hand) {
 			return hand == Hand.LEFT ? _left : _right;
 		}
 		
-		public Transform GetTransform(Hand hand) {
-			return hand == Hand.LEFT ? _leftTransform : _rightTransform;
-		}
-		
-		public Vector3 GetStoredPosition(Hand hand) {
-			return hand == Hand.LEFT ? _storedLeftPosition : _storedRightPosition;
-		}
-
 		public void StorePosition(Hand hand) {
 			if(hand == Hand.LEFT) {
-				_storedLeftPosition = _leftTransform.position;
+				_left.StoredPosition = _leftHandTransform.position;
+				_left.PreviousPosition = _leftHandTransform.position;
+				_left.CurrentPosition = _leftHandTransform.position;
 			} else {
-				_storedRightPosition = _rightTransform.position;
+				_right.StoredPosition = _rightHandTransform.position;
+				_right.PreviousPosition = _rightHandTransform.position;
+				_right.CurrentPosition = _rightHandTransform.position;
+			}
+		}
+		
+		public void UpdatePosition(Hand hand) {
+			if(hand == Hand.LEFT) {
+				_left.PreviousPosition = _left.CurrentPosition;
+				_left.CurrentPosition = _leftHandTransform.position;
+			} else {
+				_right.PreviousPosition = _right.CurrentPosition;
+				_right.CurrentPosition = _rightHandTransform.position;
 			}
 		}
 		
@@ -71,10 +85,10 @@ public class ClimbProvider : MonoBehaviour {
 	};
 	void Start() {
 		_hands = new Hands(
-		new HandInfo(leftHandRenderer, leftClimbCollider),
-		new HandInfo(rightHandRenderer, rightClimbCollider),
-		leftHandTransform,
-		rightHandTransform
+			new HandInfo(renderer: leftHandRenderer, climbCollider: leftClimbCollider, position: leftHandTransform.position),
+			new HandInfo(renderer: rightHandRenderer, climbCollider: rightClimbCollider, position: rightHandTransform.position),
+			leftHandTransform,
+			rightHandTransform
 		);
 	}
 
@@ -122,6 +136,11 @@ public class ClimbProvider : MonoBehaviour {
 			if(climbing) {
 				// Debug.Log($"Hand: {hand} is attached at position {_hands.GetStoredPosition(hand)}");
 				// _hands.GetTransform(hand).position = _hands.GetStoredPosition(hand);
+				_hands.UpdatePosition(hand);
+				var handInfo = _hands.Get(hand);
+				var handDelta = handInfo.StoredPosition - handInfo.CurrentPosition;
+				
+				accelerationMoveProvider.ScheduleMove(handDelta);
 			}
 		}	
 	}
