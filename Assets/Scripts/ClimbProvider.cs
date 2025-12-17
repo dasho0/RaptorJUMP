@@ -20,7 +20,7 @@ public class ClimbProvider : MonoBehaviour {
 	[SerializeField] private GravityProvider gravityProvider;
 	
 	[SerializeField] private float handLength = 1f;
-
+	
 	private class HandInfo {
 		public readonly Renderer Renderer;
 		public readonly ClimbCollider ClimbCollider;
@@ -66,6 +66,14 @@ public class ClimbProvider : MonoBehaviour {
 			}
 		}
 		
+		// public void MoveHandToStoredPosition(Hand hand) {
+		// 	if(hand == Hand.LEFT) {
+		// 		_leftHandTransform.position = _left.StoredPosition;
+		// 	} else {
+		// 		_rightHandTransform.position = _right.StoredPosition;
+		// 	}
+		// }
+		
 		public void UpdatePosition(Hand hand) {
 			if(hand == Hand.LEFT) {
 				_left.PreviousPosition = _left.CurrentPosition;
@@ -83,12 +91,17 @@ public class ClimbProvider : MonoBehaviour {
 		{ Hand.LEFT, false },
 		{ Hand.RIGHT, false },
 	};
+	
+	private GameObject _momentumRigidbodyObject;
+	private Rigidbody _momentumRigidbody;
+
+	private Transform _previousPlayerTransform;
 	void Start() {
 		_hands = new Hands(
-			new HandInfo(renderer: leftHandRenderer, climbCollider: leftClimbCollider, position: leftHandTransform.position),
-			new HandInfo(renderer: rightHandRenderer, climbCollider: rightClimbCollider, position: rightHandTransform.position),
-			leftHandTransform,
-			rightHandTransform
+		new HandInfo(renderer: leftHandRenderer, climbCollider: leftClimbCollider, position: leftHandTransform.position),
+		new HandInfo(renderer: rightHandRenderer, climbCollider: rightClimbCollider, position: rightHandTransform.position),
+		leftHandTransform,
+		rightHandTransform
 		);
 	}
 
@@ -128,6 +141,7 @@ public class ClimbProvider : MonoBehaviour {
 		}
 		
 		ReleasePlayer();
+		CreateMomentumRigidBody();
 	}
 
 	// Update is called once per frame
@@ -137,12 +151,26 @@ public class ClimbProvider : MonoBehaviour {
 				// Debug.Log($"Hand: {hand} is attached at position {_hands.GetStoredPosition(hand)}");
 				// _hands.GetTransform(hand).position = _hands.GetStoredPosition(hand);
 				_hands.UpdatePosition(hand);
+				
 				var handInfo = _hands.Get(hand);
 				var handDelta = handInfo.StoredPosition - handInfo.CurrentPosition;
+				// _hands.MoveHandToStoredPosition(hand);
 				
 				accelerationMoveProvider.ScheduleMove(handDelta);
 			}
 		}	
+		
+		if(!_momentumRigidbody) {
+			return;
+		}
+		
+		if(gravityProvider.isGrounded || _isClimbing.ContainsValue(true)) {	
+			DestroyMomentumRigidBody();
+		} else {
+			playerCharacterController.transform.position = _momentumRigidbody.transform.position;
+		}
+		
+		_previousPlayerTransform = playerCharacterController.transform;
 	}
 
 	private void StopPlayer() {
@@ -154,5 +182,25 @@ public class ClimbProvider : MonoBehaviour {
 	private void ReleasePlayer() {
 		accelerationMoveProvider.UnlockMovement();
 		gravityProvider.useGravity = true;
+	}
+
+	private void CreateMomentumRigidBody() {
+		_momentumRigidbodyObject = new GameObject("ClimbMomentumGuide");
+    
+		_momentumRigidbodyObject.transform.position = playerCharacterController.transform.position;
+		_momentumRigidbody = _momentumRigidbodyObject.AddComponent<Rigidbody>();
+		_momentumRigidbody.useGravity = true;
+		_momentumRigidbody.linearDamping = 0.5f;
+		// _momentumRigidbody.linearVelocity = _previousPlayerTransform.position - playerCharacterController.transform.position;
+		_momentumRigidbody.linearVelocity = new Vector3(0, 10, 0);
+	}
+	
+	private void DestroyMomentumRigidBody() {
+		if(!_momentumRigidbodyObject) {
+			return;
+		}
+		Destroy(_momentumRigidbodyObject);
+		_momentumRigidbodyObject = null;
+		_momentumRigidbody = null;
 	}
 }

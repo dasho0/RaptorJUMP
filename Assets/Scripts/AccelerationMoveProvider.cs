@@ -91,14 +91,14 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
         return speedCap * 0.5f;
     }
 
-    protected new void Update() {
+    protected void LateUpdate() {
         if (_movementLocked && _scheduledMoveWhileLocked != Vector3.zero) {
             base.MoveRig(_scheduledMoveWhileLocked);
             _scheduledMoveWhileLocked = Vector3.zero;
             return;
         }
 
-        base.Update();
+        // base.Update();
     }
 
     protected override Vector3 ComputeDesiredMove(Vector2 input) {
