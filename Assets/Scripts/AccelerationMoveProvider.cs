@@ -17,15 +17,22 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
     [SerializeField]
     private float normalizeAtTime = 4f;
 
+    // Backing field for the current speed. Use the property to read/write and enforce clamping.
     private float _currentSpeed = 0f;
+    public float CurrentSpeed {
+        get => _currentSpeed;
+        set => _currentSpeed = Mathf.Clamp(value, 0f, speedCap);
+    }
+
     private bool _movementLocked = false;
     private Vector3 _scheduledMoveWhileLocked = Vector3.zero;
+    public Vector3 LastMoveNormalized { get; private set; }
 
     #if UNITY_EDITOR
     private float debug_angleBetweenMovementAndForward = 0f;
 
     public void OnGUI() {
-            GUILayout.Label($"Angle between forward and movement: {debug_angleBetweenMovementAndForward}");
+            // GUILayout.Label($"Angle between forward and movement: {debug_angleBetweenMovementAndForward}");
     }
     #endif
 
@@ -92,7 +99,7 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
     }
 
     protected void LateUpdate() {
-        if (_movementLocked && _scheduledMoveWhileLocked != Vector3.zero) {
+        if (_movementLocked) {
             base.MoveRig(_scheduledMoveWhileLocked);
             _scheduledMoveWhileLocked = Vector3.zero;
             return;
@@ -105,7 +112,7 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
         var shouldAccelerate = gravityProvider.isGrounded;
         // TODO: this should be handled properly probably
 
-        if(_movementLocked && _scheduledMoveWhileLocked != Vector3.zero) {
+        if(_movementLocked) {
             var move = _scheduledMoveWhileLocked;
             _scheduledMoveWhileLocked = Vector3.zero;
             return move;
@@ -164,9 +171,10 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
         }
 
         var translationInWorldSpace = translationInWorldSpaceNormalized * speedFactor;
+        LastMoveNormalized = translationInWorldSpaceNormalized;
         return translationInWorldSpace;
     }
-
+    
     public void LockMovement() {
         _movementLocked = true;
     }

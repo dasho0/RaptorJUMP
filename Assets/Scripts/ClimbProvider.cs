@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Gravity;
 
 public class ClimbProvider : MonoBehaviour {
-	// Start is called once before the first execution of Update after the MonoBehaviour is created
 	[SerializeField] private ClimbCollider leftClimbCollider; 
 	[SerializeField] private ClimbCollider rightClimbCollider;
 	
@@ -20,6 +19,34 @@ public class ClimbProvider : MonoBehaviour {
 	[SerializeField] private GravityProvider gravityProvider;
 	
 	[SerializeField] private float handLength = 1f;
+	
+	private Hands _hands;
+	private Dictionary<Hand, bool> _isClimbing = new Dictionary<Hand, bool> {
+		{ Hand.LEFT, false },
+		{ Hand.RIGHT, false },
+	};
+	
+	private GameObject _momentumRigidbodyObject;
+	private Rigidbody _momentumRigidbody;
+
+	private Vector3 _previousPlayerPosition;
+
+	private GrabTimer _grabTimer = new GrabTimer();
+
+	private Vector3 _storedMoveDirection;
+	private float _storedSpeed;
+	
+	private class GrabTimer {
+		public float Value { get; private set; } = 0.5f;	
+		
+		public void Reset() {
+			Value = 1f;
+		}
+		
+		public void Decrement() {
+			Value -= Time.deltaTime;
+		}
+	}
 	
 	private class HandInfo {
 		public readonly Renderer Renderer;
@@ -86,16 +113,6 @@ public class ClimbProvider : MonoBehaviour {
 		
 	}
 
-	private Hands _hands;
-	private Dictionary<Hand, bool> _isClimbing = new Dictionary<Hand, bool> {
-		{ Hand.LEFT, false },
-		{ Hand.RIGHT, false },
-	};
-	
-	private GameObject _momentumRigidbodyObject;
-	private Rigidbody _momentumRigidbody;
-
-	private Transform _previousPlayerTransform;
 	void Start() {
 		_hands = new Hands(
 		new HandInfo(renderer: leftHandRenderer, climbCollider: leftClimbCollider, position: leftHandTransform.position),
@@ -128,6 +145,13 @@ public class ClimbProvider : MonoBehaviour {
 
 		_isClimbing[hand] = true;
 		_hands.StorePosition(hand);
+		_grabTimer.Reset();
+		
+		// var storedMoveDirectionFull = Vector3.Normalize(_previousPlayerPosition - playerCharacterController.transform.position);
+		var storedMoveDirectionFull = accelerationMoveProvider.LastMoveNormalized;
+		_storedMoveDirection = new Vector3(storedMoveDirectionFull.x, 0, storedMoveDirectionFull.z);
+		
+		_storedSpeed = accelerationMoveProvider.CurrentSpeed;
 	}
     
 	private void HandleClimbEnded(Hand hand) {
@@ -142,6 +166,7 @@ public class ClimbProvider : MonoBehaviour {
 		
 		ReleasePlayer();
 		CreateMomentumRigidBody();
+		accelerationMoveProvider.CurrentSpeed = _storedSpeed;
 	}
 
 	// Update is called once per frame
@@ -160,6 +185,8 @@ public class ClimbProvider : MonoBehaviour {
 			}
 		}	
 		
+		_grabTimer.Decrement();
+		
 		if(!_momentumRigidbody) {
 			return;
 		}
@@ -170,7 +197,7 @@ public class ClimbProvider : MonoBehaviour {
 			playerCharacterController.transform.position = _momentumRigidbody.transform.position;
 		}
 		
-		_previousPlayerTransform = playerCharacterController.transform;
+		_previousPlayerPosition = playerCharacterController.transform.position;
 	}
 
 	private void StopPlayer() {
@@ -191,8 +218,8 @@ public class ClimbProvider : MonoBehaviour {
 		_momentumRigidbody = _momentumRigidbodyObject.AddComponent<Rigidbody>();
 		_momentumRigidbody.useGravity = true;
 		_momentumRigidbody.linearDamping = 0.5f;
-		// _momentumRigidbody.linearVelocity = _previousPlayerTransform.position - playerCharacterController.transform.position;
-		_momentumRigidbody.linearVelocity = new Vector3(0, 10, 0);
+		_momentumRigidbody.linearVelocity = (_previousPlayerPosition - playerCharacterController.transform.position + _storedSpeed * _storedMoveDirection);
+		// _momentumRigidbody.linearVelocity = new Vector3(0, 10, 0);
 	}
 	
 	private void DestroyMomentumRigidBody() {
@@ -203,4 +230,10 @@ public class ClimbProvider : MonoBehaviour {
 		_momentumRigidbodyObject = null;
 		_momentumRigidbody = null;
 	}
+
+#if UNITY_EDITOR
+	private void OnGUI() {
+		GUILayout.Label($"Stored velocity: {_storedMoveDirection}");
+	}
+#endif
 }
