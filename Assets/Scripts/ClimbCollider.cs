@@ -141,10 +141,12 @@ public class ClimbCollider : MonoBehaviour {
 
 		if(_currentlyOverlapping.Count == 0 || !isPressed) {
 			_currentlyOverlapping.Clear();
-			if(_gripping) {
-				onClimbEnded?.Invoke(hand);
-				_gripping = false;
+			if(!_gripping || isPressed) {
+				return;
 			}
+				
+			onClimbEnded?.Invoke(hand);
+			_gripping = false;
 			return;
 		}
 
@@ -153,13 +155,15 @@ public class ClimbCollider : MonoBehaviour {
 			onClimbStarted?.Invoke(hand);
 			
 			_gripping = true;
-		} else if(!canGrip && _gripping) {
-			onClimbEnded?.Invoke(hand);
-			_gripping = false;
-		}
+		} 
 
 #if UNITY_EDITOR
 		dbg_DrawPoints();
 #endif
 	}
+
+	// public void IncreaseColliderRadius(float delta) {
+	// 	Debug.Assert(_gripping);
+	// 	colliderRadius += delta;
+	// }
 }
