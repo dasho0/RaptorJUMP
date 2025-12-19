@@ -18,7 +18,7 @@ public class ClimbProvider : MonoBehaviour {
 	[SerializeField] private AccelerationMoveProvider accelerationMoveProvider;
 	[SerializeField] private GravityProvider gravityProvider;
 	
-	[SerializeField] private float handLength = 1f;
+	[SerializeField] private float grabSpeedDecay = 0.5f;
 	
 	private Hands _hands;
 	private Dictionary<Hand, bool> _isClimbing = new Dictionary<Hand, bool> {
@@ -182,6 +182,10 @@ public class ClimbProvider : MonoBehaviour {
 				// _hands.MoveHandToStoredPosition(hand);
 				
 				accelerationMoveProvider.ScheduleMove(handDelta);
+
+				if(_grabTimer.Value <= 0f) {
+					_storedSpeed = Mathf.Max(_storedSpeed - grabSpeedDecay * Time.deltaTime, 0);
+				}
 			}
 		}	
 		
@@ -233,7 +237,7 @@ public class ClimbProvider : MonoBehaviour {
 
 #if UNITY_EDITOR
 	private void OnGUI() {
-		GUILayout.Label($"Stored velocity: {_storedMoveDirection}");
+		GUILayout.Label($"Stored speed: {_storedSpeed}");
 	}
 #endif
 }

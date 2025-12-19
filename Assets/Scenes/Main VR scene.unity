@@ -3042,7 +3042,7 @@ MonoBehaviour:
   playerCharacterController: {fileID: 287992992}
   accelerationMoveProvider: {fileID: 509853237}
   gravityProvider: {fileID: 1594239347}
-  handLength: 1
+  grabSpeedDecay: 1.3
 --- !u!1 &1947499184
 GameObject:
   m_ObjectHideFlags: 0
