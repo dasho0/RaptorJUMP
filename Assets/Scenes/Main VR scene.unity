@@ -321,19 +321,19 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 179678246}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -0.003}
+  m_LocalScale: {x: 0.0012284048, y: 0.0012284048, z: 0.0012284048}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1553800557}
-  m_Father: {fileID: 1639221306}
+  m_Father: {fileID: 590896719}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0.05}
+  m_SizeDelta: {x: 840, y: 470}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &179678248
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -373,7 +373,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!223 &179678250
 Canvas:
   m_ObjectHideFlags: 0
@@ -383,7 +383,7 @@ Canvas:
   m_GameObject: {fileID: 179678246}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
+  m_RenderMode: 2
   m_Camera: {fileID: 1639221309}
   m_PlaneDistance: 1
   m_PixelPerfect: 0
@@ -1091,6 +1091,7 @@ Transform:
   - {fileID: 1096508143}
   - {fileID: 548789470}
   - {fileID: 89653279}
+  - {fileID: 179678247}
   m_Father: {fileID: 1600648693}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &590896720
@@ -2072,14 +2073,14 @@ RectTransform:
   m_GameObject: {fileID: 1553800556}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 179678247}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 170, y: -150}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1553800558
@@ -2452,8 +2453,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 3.9, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 179678247}
+  m_Children: []
   m_Father: {fileID: 1600648693}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1639221307
@@ -3042,7 +3042,7 @@ MonoBehaviour:
   playerCharacterController: {fileID: 287992992}
   accelerationMoveProvider: {fileID: 509853237}
   gravityProvider: {fileID: 1594239347}
-  grabSpeedDecay: 1.3
+  grabSpeedDecayFactor: 0
 --- !u!1 &1947499184
 GameObject:
   m_ObjectHideFlags: 0

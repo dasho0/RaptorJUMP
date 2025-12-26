@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Gravity;
 
 public class ClimbProvider : MonoBehaviour {
@@ -18,7 +19,7 @@ public class ClimbProvider : MonoBehaviour {
 	[SerializeField] private AccelerationMoveProvider accelerationMoveProvider;
 	[SerializeField] private GravityProvider gravityProvider;
 	
-	[SerializeField] private float grabSpeedDecay = 0.5f;
+	[SerializeField] private float grabSpeedDecayFactor = 1.3f;
 	
 	private Hands _hands;
 	private Dictionary<Hand, bool> _isClimbing = new Dictionary<Hand, bool> {
@@ -184,7 +185,7 @@ public class ClimbProvider : MonoBehaviour {
 				accelerationMoveProvider.ScheduleMove(handDelta);
 
 				if(_grabTimer.Value <= 0f) {
-					_storedSpeed = Mathf.Max(_storedSpeed - grabSpeedDecay * Time.deltaTime, 0);
+					_storedSpeed = Mathf.Max(_storedSpeed - grabSpeedDecayFactor * Time.deltaTime, 0);
 				}
 			}
 		}	
