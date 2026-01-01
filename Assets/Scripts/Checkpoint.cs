@@ -2,30 +2,37 @@ using System;
 using UnityEngine;
 public class Checkpoint : MonoBehaviour {
 	public int checkpointID = 0;
+	
+	private CheckpointManager _checkpointManager;
 
-	private Renderer materialRenderer;
+	private Renderer _materialRenderer;
 	private Collider _collider;
 
 	private void OnTriggerEnter(Collider other) {
 		Debug.Log("Hit checkpoint " + checkpointID);
-		CheckpointManager.Pass(this);
+		_checkpointManager.Pass(this);
 	}
 
 	private void Awake() {
 		var visual = transform.Find("Visual").gameObject;
-		materialRenderer = visual.GetComponent<Renderer>();
+		_materialRenderer = visual.GetComponent<Renderer>();
 		_collider = GetComponent<Collider>();
+	}
+
+	private void Start() {
+		_checkpointManager = FindFirstObjectByType<CheckpointManager>();
+		Debug.Assert(_checkpointManager != null);
 		
-		CheckpointManager.Register(this);	
+		_checkpointManager.Register(this);	
 	}
 
 	public void Deactivate() {
-		materialRenderer.enabled = false;
+		_materialRenderer.enabled = false;
 		_collider.enabled = false;
 	}
 	
 	public void Activate() {
-		materialRenderer.enabled = true;
+		_materialRenderer.enabled = true;
 		_collider.enabled = true;
 	}
 }

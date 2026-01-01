@@ -1,37 +1,55 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
-using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
+using UnityEngine.XR.Interaction.Toolkit.Locomotion.Teleportation;
 
 public class CheckpointManager : MonoBehaviour {
-	private static readonly Dictionary<int, Checkpoint> CheckpointById = new Dictionary<int, Checkpoint>();
-	private static Checkpoint _nextCheckpoint;
+	// [SerializeField] private Transform playerTransform;
+	[SerializeField] private TeleportationProvider teleportationProvider;
+	[SerializeField] private AccelerationMoveProvider accelerationMoveProvider;
+	
+	private readonly Dictionary<int, Checkpoint> _checkpointById = new Dictionary<int, Checkpoint>();
+	private Checkpoint _nextCheckpoint;
+	private Checkpoint _currentCheckpoint;
 
-	public static void Register(Checkpoint checkpoint) {
-		Debug.Assert(!CheckpointById.ContainsKey(checkpoint.checkpointID));
-		
-		CheckpointById.Add(checkpoint.checkpointID, checkpoint);
-		
-		foreach(var c in CheckpointById.Values) {
-			c.Deactivate();	
+	public void Register(Checkpoint checkpoint) {
+		Debug.Assert(!_checkpointById.ContainsKey(checkpoint.checkpointID));
+
+		_checkpointById.Add(checkpoint.checkpointID, checkpoint);
+
+		foreach (var c in _checkpointById.Values) {
+			c.Deactivate();
 		}
-		
-		_nextCheckpoint = CheckpointById[CheckpointById.Keys.Min()];
+
+		_nextCheckpoint = _checkpointById[_checkpointById.Keys.Min()];
 		_nextCheckpoint.Activate();
+
+		_currentCheckpoint ??= _nextCheckpoint;
 	}
 
-	public static void Pass(Checkpoint checkpoint) {
+	public void Pass(Checkpoint checkpoint) {
 		Debug.Assert(checkpoint == _nextCheckpoint);
-		
+
+		_currentCheckpoint = checkpoint;
 
 		var nextCheckpointId = checkpoint.checkpointID + 1;
-		
+
 		_nextCheckpoint.Deactivate();
-		_nextCheckpoint = CheckpointById.GetValueOrDefault(nextCheckpointId); //TODO: handle end of level
-		if(_nextCheckpoint != null) {
-			_nextCheckpoint.Activate();	
+		_nextCheckpoint = _checkpointById.GetValueOrDefault(nextCheckpointId); //TODO: handle end of level
+		if (_nextCheckpoint != null) {
+			_nextCheckpoint.Activate();
 		}
+	}
+
+	public void Respawn() {
+		var targetPosition = _currentCheckpoint.transform.position;
+		var teleportationRequest = new TeleportRequest {	
+			destinationPosition = targetPosition,
+			destinationRotation = Quaternion.identity,
+		};
+
+		accelerationMoveProvider.CurrentSpeed = 0;
+		teleportationProvider.QueueTeleportRequest(teleportationRequest);
 	}
 }
