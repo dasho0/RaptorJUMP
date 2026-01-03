@@ -862,6 +862,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   teleportationProvider: {fileID: 1879591884}
   accelerationMoveProvider: {fileID: 509853237}
+  levelTimer: {fileID: 1923928876}
 --- !u!4 &531593588
 Transform:
   m_ObjectHideFlags: 0
