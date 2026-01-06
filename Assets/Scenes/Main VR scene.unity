@@ -1280,7 +1280,7 @@ Transform:
   m_GameObject: {fileID: 622754050}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.003, y: 2.268, z: 2.55133}
+  m_LocalPosition: {x: -2.29, y: 2.268, z: 2.55133}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3782,7 +3782,7 @@ MonoBehaviour:
   m_UnlimitedInAirJumps: 0
   m_InAirJumpCount: 0
   m_JumpForgivenessWindow: 0.25
-  m_JumpHeight: 1.25
+  m_JumpHeight: 3
   m_VariableHeightJump: 1
   m_MinJumpHoldTime: 0.1
   m_MaxJumpHoldTime: 0.5
@@ -3993,13 +3993,18 @@ MonoBehaviour:
   m_WallLayers:
     serializedVersion: 2
     m_Bits: 128
+  m_MaxEnergy: 8
+  m_EnergyDepletionRate: 1.5
+  m_MinEnergyToStayAttached: 0.3
+  m_MinEnergyToJump: 0.5
+  m_WallTransitionEnergyRetention: 0.7
+  m_MinSpeedToAttach: 0.3
+  m_MinSlideSpeed: 0.3
+  m_MaxSlideSpeed: 2.5
+  m_JumpOutForce: 5
+  m_JumpUpForce: 4
+  m_MinJumpForceMultiplier: 0.25
   m_AttachCooldown: 0.1
-  m_WallSlideSpeed: 0.2
-  m_WallJumpUpForce: 6
-  m_WallJumpOutForce: 4
-  m_MaxWallRunSpeed: 10
-  m_WallRunDeceleration: 0.1
-  m_MinSpeedToStayAttached: 0.3
   m_JumpInput:
     m_InputSourceMode: 2
     m_InputActionPerformed:
@@ -4030,7 +4035,8 @@ MonoBehaviour:
     m_ManualQueueWasCompletedThisFrame: 0
     m_ManualQueueValue: 0
     m_ManualQueueTargetFrame: 0
-  m_PostWallJumpJumpProviderDelay: 0.12
+  m_MoveProvider: {fileID: 0}
+  m_ShowDebugGUI: 1
 --- !u!1 &1785677877
 GameObject:
   m_ObjectHideFlags: 0
@@ -4654,7 +4660,7 @@ Transform:
   m_GameObject: {fileID: 2125520077}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.97, y: 4.11, z: 25.94}
+  m_LocalPosition: {x: -0.7, y: 4.11, z: 25.94}
   m_LocalScale: {x: 1, y: 5, z: 48.95793}
   m_ConstrainProportionsScale: 0
   m_Children: []

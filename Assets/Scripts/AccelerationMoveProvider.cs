@@ -17,7 +17,9 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
 
     private float currentSpeed = 0f;
 
-    #if UNITY_EDITOR
+    public float CurrentSpeed => currentSpeed;
+
+#if UNITY_EDITOR
     private float debug_angleBetweenMovementAndForward = 0f;
 
     public void OnGUI() {
