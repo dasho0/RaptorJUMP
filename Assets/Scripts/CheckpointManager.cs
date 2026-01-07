@@ -9,6 +9,7 @@ public class CheckpointManager : MonoBehaviour {
 	[SerializeField] private TeleportationProvider teleportationProvider;
 	[SerializeField] private AccelerationMoveProvider accelerationMoveProvider;
 	[SerializeField] private LevelTimer levelTimer;
+	[SerializeField] private FinalMenu finalMenu;
 	
 	private readonly Dictionary<int, Checkpoint> _checkpointById = new Dictionary<int, Checkpoint>();
 	private Checkpoint _nextCheckpoint;
@@ -47,6 +48,7 @@ public class CheckpointManager : MonoBehaviour {
 		_nextCheckpoint = _checkpointById.GetValueOrDefault(nextCheckpointId); //TODO: handle end of level
 		if (_nextCheckpoint == null) {
 			levelTimer.PauseTimer();			
+			finalMenu.Show();
 			return;
 		}
 		
