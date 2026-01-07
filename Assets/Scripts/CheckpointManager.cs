@@ -26,7 +26,10 @@ public class CheckpointManager : MonoBehaviour {
 		_nextCheckpoint = _checkpointById[_checkpointById.Keys.Min()];
 		_nextCheckpoint.Activate();
 
-		_currentCheckpoint ??= _nextCheckpoint;
+		// _currentCheckpoint ??= _nextCheckpoint;
+		if(checkpoint.checkpointID == 0) {
+			_currentCheckpoint = checkpoint;
+		}
 	}
 
 	public void Pass(Checkpoint checkpoint) {
