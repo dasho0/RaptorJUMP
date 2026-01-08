@@ -5,6 +5,8 @@ public class PlayerHealth : MonoBehaviour
     public int maxHealth = 100;
     private int currentHealth;
 
+    [SerializeField] private CheckpointManager checkpointManager;
+
     void Start() => currentHealth = maxHealth;
 
     public void TakeDamage(int amount)
@@ -21,5 +23,7 @@ public class PlayerHealth : MonoBehaviour
     {
         Debug.Log("Player Died.");
         // Add death logic
+        currentHealth = maxHealth; // Reset HP po respawnie
+        checkpointManager.Respawn();
     }
 }
