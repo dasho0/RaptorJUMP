@@ -28,8 +28,6 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
     private Vector3 _scheduledMoveWhileLocked = Vector3.zero;
     public Vector3 LastMoveNormalized { get; private set; }
 
-    public float CurrentSpeed => currentSpeed;
-
 #if UNITY_EDITOR
     private float debug_angleBetweenMovementAndForward = 0f;
 
