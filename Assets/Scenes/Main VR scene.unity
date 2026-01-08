@@ -491,6 +491,7 @@ GameObject:
   - component: {fileID: 287992993}
   - component: {fileID: 287992995}
   - component: {fileID: 287992994}
+  - component: {fileID: 287992996}
   m_Layer: 3
   m_Name: VR Player
   m_TagString: Origin
@@ -623,6 +624,84 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &287992996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 287992988}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9e066ddfda6f974f9a54579ec317feb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
+  maxHealth: 100
+--- !u!1001 &345043143
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1351005121550818134, guid: 812091f58c9a1154b9e80b21e131a274, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 13.666076
+      objectReference: {fileID: 0}
+    - target: {fileID: 1351005121550818134, guid: 812091f58c9a1154b9e80b21e131a274, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.11
+      objectReference: {fileID: 0}
+    - target: {fileID: 1351005121550818134, guid: 812091f58c9a1154b9e80b21e131a274, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -8.4648285
+      objectReference: {fileID: 0}
+    - target: {fileID: 1351005121550818134, guid: 812091f58c9a1154b9e80b21e131a274, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1351005121550818134, guid: 812091f58c9a1154b9e80b21e131a274, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1351005121550818134, guid: 812091f58c9a1154b9e80b21e131a274, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1351005121550818134, guid: 812091f58c9a1154b9e80b21e131a274, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1351005121550818134, guid: 812091f58c9a1154b9e80b21e131a274, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1351005121550818134, guid: 812091f58c9a1154b9e80b21e131a274, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1351005121550818134, guid: 812091f58c9a1154b9e80b21e131a274, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2345753186136252967, guid: 812091f58c9a1154b9e80b21e131a274, type: 3}
+      propertyPath: m_Name
+      value: Enemy AI
+      objectReference: {fileID: 0}
+    - target: {fileID: 3106922794457149516, guid: 812091f58c9a1154b9e80b21e131a274, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 287992991}
+    - target: {fileID: 3106922794457149516, guid: 812091f58c9a1154b9e80b21e131a274, type: 3}
+      propertyPath: playerHealth
+      value: 
+      objectReference: {fileID: 287992996}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 812091f58c9a1154b9e80b21e131a274, type: 3}
 --- !u!1 &509853235
 GameObject:
   m_ObjectHideFlags: 0
@@ -3706,3 +3785,4 @@ SceneRoots:
   - {fileID: 1738831242}
   - {fileID: 622754054}
   - {fileID: 1495093690}
+  - {fileID: 345043143}
