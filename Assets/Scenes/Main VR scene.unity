@@ -295,67 +295,6 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.08
   m_Center: {x: -0.03, y: -0.03, z: 0}
---- !u!1001 &116788733
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 565158161672361843, guid: 0be85ce9abecf0a4aa2b57b4414dfd1b, type: 3}
-      propertyPath: checkpointID
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2290331933660752699, guid: 0be85ce9abecf0a4aa2b57b4414dfd1b, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.93553
-      objectReference: {fileID: 0}
-    - target: {fileID: 2290331933660752699, guid: 0be85ce9abecf0a4aa2b57b4414dfd1b, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.2
-      objectReference: {fileID: 0}
-    - target: {fileID: 2290331933660752699, guid: 0be85ce9abecf0a4aa2b57b4414dfd1b, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -5.059
-      objectReference: {fileID: 0}
-    - target: {fileID: 2290331933660752699, guid: 0be85ce9abecf0a4aa2b57b4414dfd1b, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2290331933660752699, guid: 0be85ce9abecf0a4aa2b57b4414dfd1b, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2290331933660752699, guid: 0be85ce9abecf0a4aa2b57b4414dfd1b, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2290331933660752699, guid: 0be85ce9abecf0a4aa2b57b4414dfd1b, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2290331933660752699, guid: 0be85ce9abecf0a4aa2b57b4414dfd1b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2290331933660752699, guid: 0be85ce9abecf0a4aa2b57b4414dfd1b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2290331933660752699, guid: 0be85ce9abecf0a4aa2b57b4414dfd1b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2804982148514383732, guid: 0be85ce9abecf0a4aa2b57b4414dfd1b, type: 3}
-      propertyPath: m_Name
-      value: Checkpoint 2
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 0be85ce9abecf0a4aa2b57b4414dfd1b, type: 3}
 --- !u!137 &134887168 stripped
 SkinnedMeshRenderer:
   m_CorrespondingSourceObject: {fileID: 5686134208196863108, guid: 1fd3a7c43c8190f4d8c167ebde694364, type: 3}
@@ -1312,7 +1251,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 565158161672361843, guid: 0be85ce9abecf0a4aa2b57b4414dfd1b, type: 3}
       propertyPath: checkpointID
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2290331933660752699, guid: 0be85ce9abecf0a4aa2b57b4414dfd1b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1356,7 +1295,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2804982148514383732, guid: 0be85ce9abecf0a4aa2b57b4414dfd1b, type: 3}
       propertyPath: m_Name
-      value: Checkpoint 3
+      value: Checkpoint 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1539,7 +1478,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 565158161672361843, guid: 0be85ce9abecf0a4aa2b57b4414dfd1b, type: 3}
       propertyPath: checkpointID
-      value: 4
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2290331933660752699, guid: 0be85ce9abecf0a4aa2b57b4414dfd1b, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1583,7 +1522,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2804982148514383732, guid: 0be85ce9abecf0a4aa2b57b4414dfd1b, type: 3}
       propertyPath: m_Name
-      value: Checkpoint 4
+      value: Checkpoint 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1639,7 +1578,7 @@ MonoBehaviour:
   m_MoveSpeed: 1
   m_InAirControlModifier: 0.5
   m_EnableStrafe: 1
-  m_EnableFly: 0
+  m_EnableFly: 1
   m_ForwardSource: {fileID: 1639221306}
   m_LeftHandMoveInput:
     m_InputSourceMode: 2
@@ -1676,6 +1615,7 @@ MonoBehaviour:
   characterController: {fileID: 287992992}
   shapeExponent: 1
   normalizeAtTime: 4
+  lastMoveAverageFrames: 5
 --- !u!1001 &528501054
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6833,7 +6773,7 @@ MonoBehaviour:
   playerCharacterController: {fileID: 287992992}
   accelerationMoveProvider: {fileID: 509853237}
   gravityProvider: {fileID: 1594239347}
-  grabSpeedDecayFactor: 0
+  grabSpeedDecayFactor: 1.3
 --- !u!1 &1923928874
 GameObject:
   m_ObjectHideFlags: 0
@@ -7730,7 +7670,6 @@ SceneRoots:
   - {fileID: 531593588}
   - {fileID: 1004345463830478165}
   - {fileID: 226069356}
-  - {fileID: 116788733}
   - {fileID: 353037967}
   - {fileID: 485231134}
   - {fileID: 577985893}
