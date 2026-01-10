@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Unity.Mathematics;
 using UnityEngine;
@@ -17,6 +18,11 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
     [SerializeField]
     private float normalizeAtTime = 4f;
 
+    [SerializeField, Min(1)]
+    private int lastMoveAverageFrames = 5;
+
+    private readonly Queue<Vector3> _lastMoveSamples = new Queue<Vector3>();
+
     // Backing field for the current speed. Use the property to read/write and enforce clamping.
     private float _currentSpeed = 0f;
     public float CurrentSpeed {
@@ -26,7 +32,34 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
 
     private bool _movementLocked = false;
     private Vector3 _scheduledMoveWhileLocked = Vector3.zero;
+
     public Vector3 LastMoveNormalized { get; private set; }
+
+    public Vector3 LastMoveAveragedNormalized {
+        get {
+            if (_lastMoveSamples.Count == 0)
+                return Vector3.zero;
+
+            Vector3 sum = Vector3.zero;
+            int validCount = 0;
+
+            foreach (var v in _lastMoveSamples) {
+                if (!float.IsFinite(v.x) || !float.IsFinite(v.y) || !float.IsFinite(v.z))
+                    continue;
+                if (v == Vector3.zero)
+                    continue;
+
+                sum += v;
+                validCount++;
+            }
+
+            if (validCount == 0)
+                return Vector3.zero;
+
+            // Re-normalize so callers always get a unit direction.
+            return sum.sqrMagnitude > 0f ? sum.normalized : Vector3.zero;
+        }
+    }
 
 #if UNITY_EDITOR
     private float debug_angleBetweenMovementAndForward = 0f;
@@ -172,7 +205,20 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
 
         var translationInWorldSpace = translationInWorldSpaceNormalized * speedFactor;
         LastMoveNormalized = translationInWorldSpaceNormalized;
+        PushMoveSample(LastMoveNormalized);
         return translationInWorldSpace;
+    }
+
+    private void PushMoveSample(Vector3 normalizedMoveDirection) {
+        // Keep this queue as a fixed-size rolling window.
+        int window = Mathf.Clamp(lastMoveAverageFrames, 1, 30);
+
+        if (!float.IsFinite(normalizedMoveDirection.x) || !float.IsFinite(normalizedMoveDirection.y) || !float.IsFinite(normalizedMoveDirection.z))
+            return;
+
+        _lastMoveSamples.Enqueue(normalizedMoveDirection);
+        while (_lastMoveSamples.Count > window)
+            _lastMoveSamples.Dequeue();
     }
     
     public void LockMovement() {
@@ -202,6 +248,6 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
 
     public void ScheduleMove(Vector3 movement) {
         _scheduledMoveWhileLocked = movement;
-        Debug.Log($"Scheduling movement: {_scheduledMoveWhileLocked}");
+        // Debug.Log($"Scheduling movement: {_scheduledMoveWhileLocked}");
     }
 }

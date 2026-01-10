@@ -151,7 +151,7 @@ public class ClimbProvider : MonoBehaviour {
 		_grabTimer.Reset();
 		
 		// var storedMoveDirectionFull = Vector3.Normalize(_previousPlayerPosition - playerCharacterController.transform.position);
-		var storedMoveDirectionFull = accelerationMoveProvider.LastMoveNormalized;
+		var storedMoveDirectionFull = accelerationMoveProvider.LastMoveAveragedNormalized;
 		_storedMoveDirection = new Vector3(storedMoveDirectionFull.x, 0, storedMoveDirectionFull.z);
 		
 		_storedSpeed = accelerationMoveProvider.CurrentSpeed;
@@ -236,13 +236,13 @@ public class ClimbProvider : MonoBehaviour {
 
 	private void CreateMomentumRigidBody() {
 		_momentumRigidbodyObject = new GameObject("ClimbMomentumGuide");
-    
+
 		_momentumRigidbodyObject.transform.position = playerCharacterController.transform.position;
 		_momentumRigidbody = _momentumRigidbodyObject.AddComponent<Rigidbody>();
 		_momentumRigidbody.useGravity = true;
 		_momentumRigidbody.linearDamping = 0.5f;
-		_momentumRigidbody.linearVelocity = (_previousPlayerPosition - playerCharacterController.transform.position + _storedSpeed * _storedMoveDirection);
-		// _momentumRigidbody.linearVelocity = new Vector3(0, 10, 0);
+
+		_momentumRigidbody.linearVelocity = _storedSpeed * _storedMoveDirection;
 	}
 	
 	private void DestroyMomentumRigidBody() {
