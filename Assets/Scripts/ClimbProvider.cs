@@ -36,6 +36,8 @@ public class ClimbProvider : MonoBehaviour {
 
 	private Vector3 _storedMoveDirection;
 	private float _storedSpeed;
+	// private Hand? _scheduledHandPositionStore = null;
+	private Vector3 _previousHandDelta = Vector3.zero;
 	
 	private class GrabTimer {
 		public float Value { get; private set; } = 0.5f;	
@@ -180,9 +182,18 @@ public class ClimbProvider : MonoBehaviour {
 				
 				var handInfo = _hands.Get(hand);
 				var handDelta = handInfo.StoredPosition - handInfo.CurrentPosition;
+				
+				// JA PIERDOLE
+				if(handDelta == _previousHandDelta * -1) {
+					_hands.StorePosition(hand);
+					_hands.UpdatePosition(hand);		
+				} else {
+					accelerationMoveProvider.ScheduleMove(handDelta);
+				}
+				
+				_previousHandDelta = handDelta;
 				// _hands.MoveHandToStoredPosition(hand);
 				
-				accelerationMoveProvider.ScheduleMove(handDelta);
 
 				if(_grabTimer.Value <= 0f) {
 					_storedSpeed = Mathf.Max(_storedSpeed - grabSpeedDecayFactor * Time.deltaTime, 0);
@@ -204,6 +215,13 @@ public class ClimbProvider : MonoBehaviour {
 		
 		_previousPlayerPosition = playerCharacterController.transform.position;
 	}
+
+	// private void LateUpdate() {
+	// 	if(_scheduledHandPositionStore != null) {
+	// 		_hands.StorePosition(_scheduledHandPositionStore.Value);
+	// 		_scheduledHandPositionStore = null
+	// 	}
+	// }
 
 	private void StopPlayer() {
 		gravityProvider.useGravity = false;

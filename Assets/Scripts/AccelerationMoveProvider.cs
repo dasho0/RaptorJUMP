@@ -98,10 +98,10 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
         return speedCap * 0.5f;
     }
 
-    protected void LateUpdate() {
+    private void LateUpdate() {
         if (_movementLocked) {
             base.MoveRig(_scheduledMoveWhileLocked);
-            _scheduledMoveWhileLocked = Vector3.zero;
+            // _scheduledMoveWhileLocked = Vector3.zero;
             return;
         }
 
@@ -183,7 +183,7 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
         _movementLocked = false;
     }
     public void ProcessWallCollision(ControllerColliderHit hit) {
-        Debug.Log($"hit wall: {hit}");
+        // Debug.Log($"hit wall: {hit}");
         if (Vector3.Dot(hit.normal, Vector3.up) > 0.7f || Vector3.Dot(hit.normal, Vector3.down) > 0.7f)
             return;
 
@@ -202,6 +202,6 @@ public class AccelerationMoveProvider : ContinuousMoveProvider
 
     public void ScheduleMove(Vector3 movement) {
         _scheduledMoveWhileLocked = movement;
-        // Debug.Log($"Scheduling movement: {_scheduledMoveWhileLocked}");
+        Debug.Log($"Scheduling movement: {_scheduledMoveWhileLocked}");
     }
 }
