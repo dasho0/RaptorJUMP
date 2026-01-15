@@ -1,9 +1,14 @@
+using System;
 using UnityEngine;
 
 public class QuitButton : MonoBehaviour {
-	public void QuitApplication() {
+	private void QuitApplication() {
 		Debug.Log("Quitting application...");
 		Application.Quit();
 	}
-	
+
+	private void OnTriggerEnter(Collider other) {
+		QuitApplication();
+	}
+
 }
