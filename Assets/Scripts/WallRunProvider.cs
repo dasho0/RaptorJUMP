@@ -312,8 +312,37 @@ namespace UnityEngine.XR.Interaction.Toolkit.Locomotion.WallRun
 
             // Calculate wall-forward direction
             m_WallForward = Vector3.Cross(m_WallNormal, Vector3.up).normalized;
-            if (Vector3.Dot(m_WallForward, transform.forward) < 0f)
-                m_WallForward = -m_WallForward;
+
+            if (m_MoveProvider != null)
+            {
+                Vector3 lastMove = m_MoveProvider.LastMoveNormalized;
+                if (lastMove == Vector3.zero)
+                    lastMove = m_MoveProvider.LastMoveAveragedNormalized;
+
+                if (lastMove != Vector3.zero)
+                {
+                    if (Vector3.Dot(m_WallForward, lastMove) < 0f)
+                        m_WallForward = -m_WallForward;
+                }
+                else
+                {
+                    if (Vector3.Dot(m_WallForward, transform.forward) < 0f)
+                        m_WallForward = -m_WallForward;
+                }
+
+                m_MoveProvider.LockMovement();
+
+                float initHorizontalSpeed = m_CurrentEnergy;
+                float energyFraction = m_EnergyAtChainStart > 0 ? m_CurrentEnergy / m_EnergyAtChainStart : 0f;
+                float slideSpeed = Mathf.Lerp(m_MaxSlideSpeed, m_MinSlideSpeed, energyFraction);
+                Vector3 scheduled = (m_WallForward * initHorizontalSpeed + Vector3.down * slideSpeed) * Time.deltaTime;
+                m_MoveProvider.ScheduleMove(scheduled);
+            }
+            else
+            {
+                if (Vector3.Dot(m_WallForward, transform.forward) < 0f)
+                    m_WallForward = -m_WallForward;
+            }
         }
 
         void UpdateWallRun()
@@ -333,7 +362,15 @@ namespace UnityEngine.XR.Interaction.Toolkit.Locomotion.WallRun
             float slideSpeed = Mathf.Lerp(m_MaxSlideSpeed, m_MinSlideSpeed, energyFraction);
             Vector3 moveVertical = Vector3.down * slideSpeed * dt;
 
-            m_CharacterController.Move(moveHorizontal + moveVertical);
+            if (m_MoveProvider != null)
+            {
+                Vector3 scheduled = moveHorizontal + moveVertical;
+                m_MoveProvider.ScheduleMove(scheduled);
+            }
+            else
+            {
+                m_CharacterController.Move(moveHorizontal + moveVertical);
+            }
         }
 
         bool CanPerformWallJump()
@@ -395,6 +432,11 @@ namespace UnityEngine.XR.Interaction.Toolkit.Locomotion.WallRun
 
             m_IsWallRunning = false;
             RemoveGravityLock();
+
+            if (m_MoveProvider != null)
+            {
+                m_MoveProvider.UnlockMovement();
+            }
 
             if (!m_IsPerformingWallJump && m_JumpProvider != null)
                 m_JumpProvider.enabled = true;
