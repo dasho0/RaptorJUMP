@@ -30,6 +30,10 @@ public class CheckpointManager : MonoBehaviour {
 		// _currentCheckpoint ??= _nextCheckpoint;
 		if(checkpoint.checkpointID == 0) {
 			_currentCheckpoint = checkpoint;
+			
+			#if UNITY_EDITOR
+			TeleportToFirstCheckpoint();
+			#endif
 		}
 	}
 
@@ -65,4 +69,17 @@ public class CheckpointManager : MonoBehaviour {
 		accelerationMoveProvider.CurrentSpeed = 0;
 		teleportationProvider.QueueTeleportRequest(teleportationRequest);
 	}
+	
+	#if UNITY_EDITOR
+	private void TeleportToFirstCheckpoint() {
+		var targetPosition = _checkpointById[0].transform.position;
+		var teleportationRequest = new TeleportRequest {	
+			destinationPosition = targetPosition,
+			destinationRotation = Quaternion.identity,
+		};
+
+		accelerationMoveProvider.CurrentSpeed = 0;
+		teleportationProvider.QueueTeleportRequest(teleportationRequest);
+	}
+	#endif
 }
