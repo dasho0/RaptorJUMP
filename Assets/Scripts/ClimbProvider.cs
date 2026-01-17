@@ -4,6 +4,7 @@ using Unity.VisualScripting.Antlr3.Runtime.Tree;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion.Gravity;
+using UnityEngine.XR.Interaction.Toolkit.Locomotion.WallRun;
 
 public class ClimbProvider : MonoBehaviour {
 	[SerializeField] private ClimbCollider leftClimbCollider; 
@@ -17,7 +18,8 @@ public class ClimbProvider : MonoBehaviour {
 	
 	[SerializeField] private CharacterController playerCharacterController;
 	[SerializeField] private AccelerationMoveProvider accelerationMoveProvider;
-	[SerializeField] private GravityProvider gravityProvider;
+    [SerializeField] private WallRunProvider wallRunProvider;
+    [SerializeField] private GravityProvider gravityProvider;
 	
 	[SerializeField] private float grabSpeedDecayFactor = 1.3f;
 	
@@ -123,7 +125,11 @@ public class ClimbProvider : MonoBehaviour {
 		leftHandTransform,
 		rightHandTransform
 		);
-	}
+        if (wallRunProvider == null)
+        {
+            wallRunProvider = GetComponentInParent<WallRunProvider>() ?? FindObjectOfType<WallRunProvider>();
+        }
+    }
 
 	private void OnEnable() {
 		leftClimbCollider.onClimbStarted += HandleClimbStarted;
@@ -142,7 +148,14 @@ public class ClimbProvider : MonoBehaviour {
 	}
 
 	private void HandleClimbStarted(Hand hand) {
-		var handInfo = _hands.Get(hand);
+
+        if (wallRunProvider != null && wallRunProvider.IsWallRunning)
+        {
+            Debug.Log("[ClimbProvider] Ignored climb start because wall run is active.");
+            return;
+        }
+
+        var handInfo = _hands.Get(hand);
 		handInfo.Renderer.material.color = Color.darkRed;
 		StopPlayer();
 
