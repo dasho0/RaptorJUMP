@@ -65,48 +65,58 @@ public class ClimbCollider : MonoBehaviour {
 	}
 
 	private bool CheckIfCanGrip() {
+		var center = handCollider.bounds.center;
 		var pointsAroundCollider = FibonacciSphere(grabRaycasts)
-			.Select(p => p * colliderRadius + handCollider.bounds.center)
+			.Select(p => p * colliderRadius + center)
 			.ToList();
 		
 #if UNITY_EDITOR
 		dbg_pointsAroundCollider = pointsAroundCollider;
 #endif
 
-		var distinctNormals = new List<Vector3>();
-		foreach(var point in pointsAroundCollider) {
-			var closestPointsOnColliders = _currentlyOverlapping
-				.Select(c => c.ClosestPoint(point))
-				.Where(p => Vector3.Distance(handCollider.bounds.center, p) <= colliderRadius)
-				.Distinct()
-				.ToList();
+		const float castRadius = 0.01f; 
+		const float backoff = 0.002f;   
+		const float extra = 0.01f;      
 
-			var normals = new List<Vector3>(closestPointsOnColliders.Count());
-			foreach (var closest in closestPointsOnColliders) {
-				var direction = (closest - point).normalized;
-				var distance = Vector3.Distance(point, closest);
-				var ray = new Ray(point, direction);
-				Debug.DrawRay(point, direction * distance, Color.red, 0.016f);
-				
-				if(Physics.Raycast(ray, out var hitInfo, distance, ~ignoreLayers)) {
-					normals.Add(hitInfo.normal);	
-					Debug.DrawRay(hitInfo.point, hitInfo.normal * 0.1f, Color.cyan, 0.016f);
-				}
+		var distinctNormals = new List<Vector3>();
+
+		foreach (var point in pointsAroundCollider) {
+			var toCenter = center - point;
+			var dist = toCenter.magnitude;
+			if (dist <= Mathf.Epsilon) {
+				continue;
 			}
 
-			distinctNormals.AddRange(normals.Distinct().ToList());
+			var direction = toCenter / dist;
+			var origin = point - direction * backoff; 
+			var maxDistance = dist + backoff + extra;
+
+			if (!Physics.SphereCast(origin, castRadius, direction, out var hitInfo, maxDistance, ~ignoreLayers, QueryTriggerInteraction.Ignore)) {
+				continue;
+			}
+
+			distinctNormals.Add(hitInfo.normal);
+
+			Debug.DrawRay(origin, direction * Mathf.Min(maxDistance, 0.25f), Color.red, 0.016f);
+			Debug.DrawRay(hitInfo.point, hitInfo.normal * 0.1f, Color.cyan, 0.016f);
 		}
-		
-		// foreach(var normal in distinctNormals) {
-		// 	Debug.DrawRay(handCollider.bounds.center, normal * 0.1f, Color.yellow, 0.016f);	
-		// }
-		
-		foreach(var n1 in distinctNormals) {
-			foreach(var n2 in distinctNormals) {
-				if(Vector3.Dot(n1, n2) <= Mathf.Abs(Mathf.Cos(grabAngleThreshold * 0.017453292519943f))) {
+
+		const float normalDotSameThreshold = 0.999f;
+		var filteredNormals = new List<Vector3>();
+		foreach (var n in distinctNormals) {
+			var nn = n.normalized;
+			if (!filteredNormals.Any(existing => Vector3.Dot(existing, nn) >= normalDotSameThreshold)) {
+				filteredNormals.Add(nn);
+			}
+		}
+
+		var dotThreshold = Mathf.Abs(Mathf.Cos(grabAngleThreshold * Mathf.Deg2Rad));
+		for (var i = 0; i < filteredNormals.Count; i++) {
+			for (var j = i + 1; j < filteredNormals.Count; j++) {
+				if (Vector3.Dot(filteredNormals[i], filteredNormals[j]) <= dotThreshold) {
 					return true;
-				}		
-			}	
+				}
+			}
 		}
 
 		return false;
@@ -134,7 +144,6 @@ public class ClimbCollider : MonoBehaviour {
 		return points;
 	}
 
-	// Update is called once per frame
 	void Update() {
 		var isPressed = climbButton.IsPressed();
 		handCollider.enabled = isPressed;
