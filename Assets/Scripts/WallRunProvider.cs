@@ -7,11 +7,6 @@ using UnityEngine.XR.Interaction.Toolkit.Locomotion.Jump;
 
 namespace UnityEngine.XR.Interaction.Toolkit.Locomotion.WallRun
 {
-    /// <summary>
-    /// Wall run provider with energy-based momentum system.
-    /// Energy is gained from running speed (via AccelerationMoveProvider),
-    /// depletes during wall run, and transfers (with loss) between wall jumps.
-    /// </summary>
     [AddComponentMenu("XR/Locomotion/Wall Run Provider")]
     public class WallRunProvider : LocomotionProvider, IGravityController
     {
@@ -66,33 +61,27 @@ namespace UnityEngine.XR.Interaction.Toolkit.Locomotion.WallRun
         [Tooltip("Reference to AccelerationMoveProvider to get player speed. Will auto-find if not set.")]
         [SerializeField] AccelerationMoveProvider m_MoveProvider;
 
-        // Auto-found references
         GravityProvider m_GravityProvider;
         JumpProvider m_JumpProvider;
         CharacterController m_CharacterController;
 
-        // Wall run state
         bool m_IsWallRunning;
         Vector3 m_WallNormal;
         Vector3 m_WallForward;
         float m_NextAttachAllowedTime;
 
-        // Energy system
         float m_CurrentEnergy;
         float m_EnergyAtChainStart;
         bool m_IsInAirChain;
 
-        // Track last known speed before jumping (since input stops during jump)
         float m_LastKnownSpeed;
 
-        // Jump state
         bool m_IsPerformingWallJump;
         Coroutine m_WallJumpCoroutine;
 
         public bool gravityPaused { get; private set; }
         public bool canProcess => isActiveAndEnabled;
 
-        // Public getters for debugging
         public bool IsWallRunning => m_IsWallRunning;
         public float CurrentEnergy => m_CurrentEnergy;
         public float EnergyFraction => m_EnergyAtChainStart > 0 ? m_CurrentEnergy / m_EnergyAtChainStart : 0f;
@@ -132,7 +121,6 @@ namespace UnityEngine.XR.Interaction.Toolkit.Locomotion.WallRun
             m_GravityProvider = GetComponentInParent<GravityProvider>() ?? FindAnyObjectByType<GravityProvider>();
             m_JumpProvider = GetComponentInParent<JumpProvider>() ?? FindAnyObjectByType<JumpProvider>();
 
-            // Find AccelerationMoveProvider if not assigned
             if (m_MoveProvider == null)
             {
                 m_MoveProvider = GetComponentInParent<AccelerationMoveProvider>() ?? FindAnyObjectByType<AccelerationMoveProvider>();
@@ -149,7 +137,6 @@ namespace UnityEngine.XR.Interaction.Toolkit.Locomotion.WallRun
 
         void Update()
         {
-            // Track speed while grounded (before jumping)
             if (m_MoveProvider != null && m_GravityProvider != null && m_GravityProvider.isGrounded)
             {
                 float currentMoveSpeed = m_MoveProvider.CurrentSpeed;
@@ -161,7 +148,6 @@ namespace UnityEngine.XR.Interaction.Toolkit.Locomotion.WallRun
 
             bool isGrounded = m_GravityProvider != null && m_GravityProvider.isGrounded;
 
-            // Reset energy chain when touching ground
             if (isGrounded)
             {
                 ResetEnergyChain();
@@ -170,13 +156,11 @@ namespace UnityEngine.XR.Interaction.Toolkit.Locomotion.WallRun
             float checkDistance = m_IsWallRunning ? m_WallStickinessDistance : m_WallCheckDistance;
             bool hitWall = CheckForWall(checkDistance);
 
-            // Try to attach to wall
             if (!m_IsWallRunning && !isGrounded && hitWall && Time.time >= m_NextAttachAllowedTime)
             {
                 TryStartWallRun();
             }
 
-            // While wall running
             if (m_IsWallRunning)
             {
                 UpdateWallRun();
@@ -223,7 +207,6 @@ namespace UnityEngine.XR.Interaction.Toolkit.Locomotion.WallRun
             {
                 if (Physics.Raycast(transform.position, dir, out RaycastHit hit, distance, m_WallLayers))
                 {
-                    // Must be vertical-ish (wall, not floor/ceiling)
                     if (Mathf.Abs(Vector3.Dot(hit.normal, Vector3.up)) < 0.3f)
                     {
                         if (hit.distance < bestDistance)

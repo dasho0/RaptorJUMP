@@ -11,7 +11,7 @@ public class FistDamage : MonoBehaviour
     public InputActionReference gripAction;
     public float gripThreshold = 0.5f;
 
-    [Header("Velocity Damage (na przysz³oœæ)")]
+    [Header("Velocity Damage")]
     public bool useVelocityDamage = false;
     public float velocityMultiplier = 5f;
     public float minVelocityToHit = 1f;

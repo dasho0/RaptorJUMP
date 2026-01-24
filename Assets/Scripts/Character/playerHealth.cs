@@ -22,8 +22,7 @@ public class PlayerHealth : MonoBehaviour
     void Die()
     {
         Debug.Log("Player Died.");
-        // Add death logic
-        currentHealth = maxHealth; // Reset HP po respawnie
+        currentHealth = maxHealth;
         checkpointManager.Respawn();
     }
 }
