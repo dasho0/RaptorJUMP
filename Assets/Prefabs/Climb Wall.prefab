@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 30839037517638218}
   - component: {fileID: 7962259166413761770}
   - component: {fileID: 5462485795086393514}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Handhold (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -123,7 +123,7 @@ GameObject:
   - component: {fileID: 4973587476483215240}
   - component: {fileID: 131489587628091590}
   - component: {fileID: 4218447779513026161}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Handhold (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -234,7 +234,7 @@ GameObject:
   - component: {fileID: 8986732790564820079}
   - component: {fileID: 5764662817111525646}
   - component: {fileID: 7055634005408681472}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Handhold (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -345,7 +345,7 @@ GameObject:
   - component: {fileID: 8695896072481539904}
   - component: {fileID: 9167266405233640780}
   - component: {fileID: 2724531259373824320}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Climb Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -462,7 +462,7 @@ GameObject:
   - component: {fileID: 4744020470452918103}
   - component: {fileID: 6145990390804814586}
   - component: {fileID: 7237153623888496277}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Handhold (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -573,7 +573,7 @@ GameObject:
   - component: {fileID: 5596307186241631752}
   - component: {fileID: 5836133287836143065}
   - component: {fileID: 5072340707065162125}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Handhold (6)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -684,7 +684,7 @@ GameObject:
   - component: {fileID: 4207690399977347290}
   - component: {fileID: 4655682695170636850}
   - component: {fileID: 1093868626278864079}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: Handhold (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
